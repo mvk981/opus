@@ -1,0 +1,13 @@
+<clickhouse>
+    <!-- Конфигурация clickhouse keeper (на замену Zookeeper) 
+    Указываем хосты Zookeeper / Clickhouse keeper
+    -->
+    <zookeeper>
+ {% for elem in groups['keeper'] %}
+        <node>
+            <host>{{ elem }}</host>
+            <port>2181</port>
+        </node>
+{% endfor %}
+    </zookeeper>
+</clickhouse>

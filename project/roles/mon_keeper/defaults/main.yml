@@ -1,0 +1,27 @@
+---
+# defaults file for mon_keeper
+# Keeper: Список стандартных пакетов
+_def_keeper_rpm: clickhouse-keeper-24.8.2.3.x86_64.rpm  
+
+# Keeper: Каталоги для keeper
+_def_keeper_etc_dir: "/etc/clickhouse-keeper"
+_def_keeper_coordination_path: "/var/lib/clickhouse-keeper/coordination"
+_def_keeper_log_storage_path: "/var/lib/clickhouse-keeper/coordination/logs" 
+_def_keeper_snapshot_storage_path: "/var/lib/clickhouse-keeper/coordination/snapshots"
+# _def_click_scripts_dir: "/usr/local/bin"
+
+# Clickhouse: Системный пользователь, под которым все работает
+_def_keeper_user: "clickhouse"
+
+# Keeper: Конфиг
+_def_keeper_cfg: "{{ _def_keeper_etc_dir }}/keeper_config.xml"
+
+# Clickhouse: Кофиг каталоги
+# _def_click_cfg_dir: "{{ _def_click_etc_dir }}/config.d"
+# _def_click_usr_dir: "{{ _def_click_etc_dir }}/users.d"
+
+# Keeper: Имя systemd сервиса
+_def_keeper_service: "clickhouse-keeper"
+
+# Keeper: Номер клиентского TCP порта сервиса
+_def_keeper_client_port: "2181"

@@ -1,0 +1,25 @@
+---
+- name: Install Keeper 
+  hosts: keeper
+  become: true
+  roles:  
+    - mon_keeper
+
+- name: Install Clickhouse Shard1 
+  hosts: sh1
+  become: true
+  roles: 
+    - mon_clickhouse
+
+- name: Install Clickhouse Shard2
+  hosts: sh2
+  become: true
+  roles:
+    - mon_clickhouse
+
+- name: Install Client
+  hosts: local
+  become: true
+  roles: 
+   - mon_client
+

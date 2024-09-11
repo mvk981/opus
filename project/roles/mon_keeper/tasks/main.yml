@@ -1,0 +1,94 @@
+# - name: Zookeeper - Install main pkg
+#   ansible.builtin.package:
+#     name: "{{ _def_zoo_pkg_main }}"
+#     state: present
+
+
+# - name: Zookeeper - Unarchive zookeeper pkg
+#   ansible.builtin.unarchive:
+#     src: "{{ pkg_repo_url }}{{ _def_zoo_pkg }}"
+#     dest: "{{ _def_zoo_main_dir }}"
+#     remote_src: true
+#     extra_opts:
+#       - "--strip-components=1"
+
+# - name: Zookeeper - Recursively change ownership of a directory
+#   ansible.builtin.file:
+#     path: "{{ _def_zoo_data_dir }}"
+#     state: directory
+#     owner: "root"
+#     group: "root"
+#     recurse: true
+
+# - name: Zookeeper - Copy zoo systemd unit
+#   ansible.builtin.template:
+#     src: zookeeper.service.j2
+#     dest: "/etc/systemd/system/{{ click_zoo_service }}.service"
+#     owner: "root"
+#     group: "root"
+#     mode: '0644'
+
+# - name: Zookeeper - Systemd daemon-reload
+#   ansible.builtin.systemd:
+#     daemon_reload: true
+
+- name: Copy {{ _def_keeper_rpm }}
+  copy:
+    src: rpms/{{ _def_keeper_rpm }}
+    dest: /tmp/{{ _def_keeper_rpm }}
+
+- name: Install package {{ _def_keeper_rpm }}
+  yum:
+    name: /tmp/{{ _def_keeper_rpm }}
+    disable_gpg_check: yes
+    state: present
+
+
+- name: Keeper - Create a main directory
+  ansible.builtin.file:
+    path: "{{ z_dir }}"
+    state: directory
+    owner: "{{ _def_keeper_user }}"
+    group: "{{ _def_keeper_user }}"
+    mode: '0755'
+  loop:
+    - "{{ _def_keeper_coordination_path }}"
+    - "{{ _def_keeper_log_storage_path }}"
+    - "{{ _def_keeper_snapshot_storage_path }}"
+  loop_control:
+    loop_var: z_dir
+
+# - name: Keeper - Install main pkg
+#   ansible.builtin.package:
+#     name: "{{ _def_keeper_pkg }}"
+#     state: present
+
+- name: Keeper - Set variable 'keeper_myid'
+  ansible.builtin.set_fact:
+    keeper_myid: "{{ groups['keeper'].index(inventory_hostname) | int + 1 if single_mode is sameas false else 0 }}"
+
+- name: Keeper - Copy clickhouse_keeper.xml
+  ansible.builtin.template:
+    src: clickhouse-keeper.xml.j2
+    dest: "{{ _def_keeper_cfg }}"
+    owner: "{{ _def_keeper_user }}"
+    group: "{{ _def_keeper_user }}"
+    mode: '0644'
+  register: result_keeper_cfg
+
+
+- name: Keeper - Systemd click zoo started
+  ansible.builtin.systemd:
+    name: "{{ _def_keeper_service }}"
+    enabled: true
+    # state: "{{ 'restarted' if result_keeper_cfg.changed else 'started' }}"
+    state: restarted
+
+- name: Keeper - Is opened port "{{ _def_keeper_client_port }}"
+  ansible.builtin.wait_for:
+    port: "{{ _def_keeper_client_port }}"
+    delay: 5
+    sleep: 5
+    connect_timeout: 5
+    timeout: 60
+    state: present

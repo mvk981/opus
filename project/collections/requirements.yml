@@ -1,0 +1,5 @@
+---
+collections:
+  # Коллекция с модулем монтирования дисков в ОС
+  - name: ansible.posix
+    version: 1.4.0

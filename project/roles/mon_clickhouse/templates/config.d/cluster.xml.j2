@@ -1,0 +1,26 @@
+<clickhouse>
+    <listen_host>0.0.0.0</listen_host>
+    <remote_servers>
+        <monitor_cluster>
+            <shard>
+{% for elem in groups['sh1'] %}
+                <replica>
+                    <host>{{ elem }}</host>
+                    <port>9000</port>
+                </replica>
+{% endfor %}
+            </shard>
+            <shard>
+{% for elem in groups['sh2'] %}
+                <replica>
+                    <host>{{ elem }}</host>
+                    <port>9000</port>
+                </replica>
+{% endfor %}
+            </shard>
+        </monitor_cluster>
+    </remote_servers>
+</clickhouse>
+
+
+

@@ -1,0 +1,65 @@
+#---------------------------------------------------------------------
+# Example configuration for a possible web application.  See the
+# full configuration options online.
+#
+#   https://www.haproxy.org/download/1.8/doc/configuration.txt
+#
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    # to have these messages end up in /var/log/haproxy.log you will
+    # need to:
+    #
+    # 1) configure syslog to accept network log events.  This is done
+    #    by adding the '-r' option to the SYSLOGD_OPTIONS in
+    #    /etc/sysconfig/syslog
+    #
+    # 2) configure local2 events to go to the /var/log/haproxy.log
+    #   file. A line like the following can be added to
+    #   /etc/sysconfig/syslog
+    #
+    #local2.*                       /var/log/haproxy.log
+    #
+    log         127.0.0.1 local2
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+
+defaults
+    mode tcp
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+frontend b8123
+    bind *:8123
+    default_backend         a8123
+
+backend a8123
+    balance     roundrobin
+{% for elem in groups['sh1'] %}
+    server {{ elem }} {{ elem }}:8123 check
+{% endfor %}
+{% for elem in groups['sh2'] %}
+    server {{ elem }} {{ elem }}:8123 check
+{% endfor %}
+
+frontend b9000
+    bind *:9000
+    default_backend         a9000
+
+backend a9000
+    balance     roundrobin
+{% for elem in groups['sh1'] %}
+    server {{ elem }} {{ elem }}:9000 check
+{% endfor %}
+{% for elem in groups['sh2'] %}
+    server {{ elem }} {{ elem }}:9000 check
+{% endfor %}

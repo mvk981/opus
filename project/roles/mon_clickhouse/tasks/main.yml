@@ -1,0 +1,143 @@
+- name: Copy {{ _def_clickhouse_common_rpm }}
+  copy:
+    src: rpms/{{ _def_clickhouse_common_rpm }}
+    dest: /tmp/{{ _def_clickhouse_common_rpm }}
+
+- name: Install package {{ _def_clickhouse_common_rpm }}
+  yum:
+    name: /tmp/{{ _def_clickhouse_common_rpm }}
+    disable_gpg_check: yes
+    state: present
+
+- name: Copy {{ _def_clickhouse_server_rpm }}
+  copy:
+    src: rpms/{{ _def_clickhouse_server_rpm }}
+    dest: /tmp/{{ _def_clickhouse_server_rpm }}
+
+- name: Install package {{ _def_clickhouse_server_rpm }}
+  yum:
+    name: /tmp/{{ _def_clickhouse_server_rpm }}
+    disable_gpg_check: yes
+    state: present
+
+- name: Copy {{ _def_clickhouse_client_rpm }}
+  copy:
+    src: rpms/{{ _def_clickhouse_client_rpm }}
+    dest: /tmp/{{ _def_clickhouse_client_rpm }}
+
+- name: Install package {{ _def_clickhouse_client_rpm }}
+  yum:
+    name: /tmp/{{ _def_clickhouse_client_rpm }}
+    disable_gpg_check: yes
+    state: present
+
+- name: Clickhouse - Create a main directory
+  ansible.builtin.file:
+    path: "{{ k_dir }}"
+    state: directory
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  loop:
+    # - "{{ _def_click_etc_dir }}"
+    # - "{{ tmp_dir }}"
+    - "{{ _def_click_config_dir }}"
+    - "{{ _def_click_users_dir }}"
+    - "{{ _def_click_var_dir }}"
+  loop_control:
+    loop_var: k_dir
+
+- name: Clickhouse - Copy cluster.xml
+  ansible.builtin.template:
+    src: config.d/cluster.xml.j2
+    dest: "{{ _def_click_config_dir }}/cluster.xml"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  register: result_cl_cluster
+
+- name: Clickhouse - Copy keeper.xml
+  ansible.builtin.template:
+    src: config.d/keeper.xml.j2
+    dest: "{{ _def_click_config_dir }}/keeper.xml"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  register: result_cl_keeper
+
+- name: Clickhouse - Copy graphite_rollup.xml
+  ansible.builtin.template:
+    src: config.d/graphite_rollup.xml.j2
+    dest: "{{ _def_click_config_dir }}/graphite_rollup.xml"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  register: result_cl_graphite_rollup
+
+- name: Clickhouse - Copy logs.xml
+  ansible.builtin.template:
+    src: config.d/logs.xml.j2
+    dest: "{{ _def_click_config_dir }}/logs.xml"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  register: result_cl_logs
+
+- name: Clickhouse - Copy macros.xml
+  ansible.builtin.template:
+    src: config.d/macros.xml.j2
+    dest: "{{ _def_click_config_dir }}/macros.xml"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  register: result_cl_macros
+
+# - name: Clickhouse - Copy settings.xml
+#   ansible.builtin.template:
+#     src: config.d/settings.xml.j2
+#     dest: "{{ _def_click_config_dir }}/settings.xml"
+#     owner: "{{ _def_click_user }}"
+#     group: "{{ _def_click_user }}"
+#     mode: '0700'
+#   register: result_cl_settings
+
+- name: Clickhouse - Copy storage.xml
+  ansible.builtin.template:
+    src: config.d/storage.xml.j2
+    dest: "{{ _def_click_config_dir }}/storage.xml"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  register: result_cl_storage
+
+# Clickhouse: Копирование users.d
+- name: Clickhouse - Copy users configs
+  ansible.builtin.template:
+    src: "users.d/{{ users_config }}"
+    dest: "{{ _def_click_users_dir }}/{{ users_config | replace('.j2', '') }}"
+    owner: "{{ _def_click_user }}"
+    group: "{{ _def_click_user }}"
+    mode: '0700'
+  loop:
+    - inserts.xml.j2
+    - default.xml.j2
+    - users.xml.j2
+  loop_control:
+    loop_var: users_config
+
+- name: Clickhouse - Systemd click started
+  ansible.builtin.systemd:
+    name: "{{ _def_click_service }}"
+    enabled: true
+    state: restarted
+    # state: "{{ 'restarted' if result_cl_storage.changed else 'started' }}"
+
+# Clickhouse: Проверка доступносит портa
+- name: Clickhouse - Is opened port "{{ click_service_port }}"
+  ansible.builtin.wait_for:
+    port: "{{ click_service_port }}"
+    delay: 5
+    sleep: 5
+    connect_timeout: 5
+    timeout: 60
+    state: present

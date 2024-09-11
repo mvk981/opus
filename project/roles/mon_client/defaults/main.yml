@@ -1,0 +1,17 @@
+---
+# defaults file for mon_haproxy
+# Haproxy: Список стандартных пакетов
+_def_hpr_pkg_main:
+  - haproxy
+
+# Haproxy: Каталоги для clickhouse
+_def_hpr_etc_dir: "/etc/haproxy"
+
+# Haproxy: Конфиг
+_def_hpr_cfg: "{{ _def_hpr_etc_dir }}/haproxy.cfg"
+
+# Haproxy: Имя systemd сервиса
+_def_hpr_service: "haproxy"
+
+# Haproxy: Номер порта со статистикой
+_def_hpr_stats_port: "{{ haproxy_stat_port | d(7000) }}"

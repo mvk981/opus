@@ -1,0 +1,26 @@
+<clickhouse>
+    <!-- Конфигурация директорий хранения данных и дисковой системы -->
+    
+    <!-- Путь основной директории с БД. -->
+    <path>{{ _def_click_var_dir }}</path>
+    <!-- Путь для временного хранения данных сложных заспросов. -->
+    <tmp_path>{{ _def_click_var_dir }}/tmp </tmp_path>
+    
+    <!-- Directory with user provided files that are accessible by 'file' table function. -->
+    <user_files_path>{{ _def_click_var_dir }}/user_files/</user_files_path>
+    <user_directories>
+        <users_xml>
+            <!-- Path to configuration file with predefined users. -->
+            <path>users.xml</path>
+        </users_xml>
+        <local_directory>
+            <!-- Path to folder where users created by SQL commands are stored. -->
+            <path>{{ _def_click_var_dir }}/access/</path>
+        </local_directory>
+    </user_directories>
+    <!-- Directory in <clickhouse-path> containing schema files for various input formats.
+         The directory will be created if it doesn't exist.
+      -->
+    <format_schema_path>{{ _def_click_var_dir }}/format_schemas/</format_schema_path>
+
+</clickhouse>

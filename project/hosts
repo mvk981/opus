@@ -1,0 +1,15 @@
+[keeper]
+192.168.122.64 ansible_user=root
+192.168.122.185 ansible_user=root
+192.168.122.79 ansible_user=root
+
+[sh1]
+192.168.122.153 ansible_user=root
+192.168.122.181 ansible_user=root
+
+[sh2]
+192.168.122.146 ansible_user=root
+192.168.122.95 ansible_user=root
+
+[local]
+127.0.0.1

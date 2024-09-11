@@ -1,0 +1,21 @@
+---
+# defaults file for mon_clickhouse
+# Clickhouse: Список пакетов
+_def_clickhouse_client_rpm: clickhouse-client-24.8.2.3.x86_64.rpm
+_def_clickhouse_server_rpm: clickhouse-server-24.8.2.3.x86_64.rpm
+_def_clickhouse_common_rpm: clickhouse-common-static-24.8.2.3.x86_64.rpm
+
+
+# Clickhouse: Каталоги для clickhouse
+_def_click_etc_dir: "/etc/clickhouse-server"
+_def_click_var_dir: "/var/lib/clickhouse"
+_def_click_config_dir: "{{ _def_click_etc_dir }}/config.d"
+_def_click_users_dir: "{{ _def_click_etc_dir }}/users.d"
+
+# _def_click_scripts_dir: "/usr/local/bin"
+
+# Clickhouse: Системный пользователь, под которым все работает
+_def_click_user: "clickhouse"
+
+# Clickhouse: Сервис, под которым все работает
+_def_click_service: "clickhouse-server"

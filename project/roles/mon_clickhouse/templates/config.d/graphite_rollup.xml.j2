@@ -1,0 +1,77 @@
+<clickhouse>
+    <!-- Конфигурация схлопывания/прореживания данных. Если время жизни данных достигло.
+    значения age - данные по функции, указанной в function будут пересчитываться, "схопываясь" в интервал, указанный в precision
+    648000s = 180h = 7.5 days
+    -->
+    <graphite_rollup>
+
+        <!-- max -->
+        <pattern>
+            <regexp>.*\.max.*</regexp>
+            <function>max</function>
+            <retention>
+                <age>0</age>
+                <precision>1</precision>
+            </retention>
+            <retention>
+                <age>648000</age>
+                <precision>3600</precision>
+            </retention>
+        </pattern>
+        <pattern>
+            <regexp>.*agg_func=max.*$</regexp>
+            <function>max</function>
+            <retention>
+                <age>0</age>
+                <precision>1</precision>
+            </retention>
+            <retention>
+                <age>648000</age>
+                <precision>3600</precision>
+            </retention>
+        </pattern>
+
+        <!-- min -->
+        <pattern>
+            <regexp>.*\.min.*</regexp>
+            <function>min</function>
+            <retention>
+                <age>0</age>
+                <precision>1</precision>
+            </retention>
+            <retention>
+                <age>648000</age>
+                <precision>3600</precision>
+            </retention>
+        </pattern>
+
+        <!-- sum -->
+        <pattern>
+            <regexp>.*agg_func=sum.+$</regexp>
+            <function>sum</function>
+            <retention>
+                <age>0</age>
+                <precision>1</precision>
+            </retention>
+            <retention>
+                <age>648000</age>
+                <precision>3600</precision>
+            </retention>
+        </pattern>
+        
+        <!-- default -->
+        <default>
+            <function>max</function>
+            <retention>
+                <age>0</age>
+                <precision>1</precision>
+            </retention>
+            <retention>
+                <age>648000</age>
+                <precision>3600</precision>
+            </retention>
+        </default>
+
+    </graphite_rollup>
+</clickhouse>
+

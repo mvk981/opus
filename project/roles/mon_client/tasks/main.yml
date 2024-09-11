@@ -1,0 +1,48 @@
+---
+# tasks file for mon_haproxy
+
+- name: Haproxy - Copy haproxy.cfg
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: "{{ _def_hpr_cfg }}"
+    owner: "root"
+    group: "root"
+    mode: '0644'
+  register: result_hpr_config
+
+- name: Haproxy - Systemd haproxy started
+  ansible.builtin.systemd:
+    name: "{{ _def_hpr_service }}"
+    enabled: true
+    state: "{{ 'restarted' if result_hpr_config.changed else 'started' }}"
+
+- name: Haproxy - Is opened port "{{ click_service_port }}"
+  ansible.builtin.wait_for:
+    port: "{{ click_service_port }}"
+    delay: 5
+    sleep: 5
+    connect_timeout: 5
+    timeout: 60
+    state: present
+
+# Clickhouse: Копирование SQL схемы
+- name: Clickhouse - Copy sql schema
+  ansible.builtin.copy:
+    src: schema.sql
+    dest: "/tmp/schema.sql"
+    mode: '0777'
+  register: result_cl_sql
+
+# Clickhouse: Применение SQL схемы
+- name: Clickhouse - Apply sql schema
+  ansible.builtin.shell: >-
+    set -o pipefail && cat /tmp/schema.sql | clickhouse-client -mn --user inserts --password XZ8l9zxQ
+  args:
+    executable: /bin/bash
+  register: result_exec_cl_sql
+  changed_when: "result_exec_cl_sql.rc != 2"
+  failed_when:
+    - result_exec_cl_sql.stderr | length > 0
+    - '"already exists" not in result_exec_cl_sql.stderr | lower'
+  # when: result_cl_sql.changed
+  # run_once: true

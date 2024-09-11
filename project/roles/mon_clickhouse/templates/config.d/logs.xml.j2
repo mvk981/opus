@@ -1,0 +1,35 @@
+<clickhouse>
+    <!-- Конфигурация и тюнинг логирования -->
+    <logger>
+        <level>warning</level>
+        <log>/var/log/clickhouse-server/clickhouse-server.log</log>
+        <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
+        <!-- Rotation policy
+             See https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/FileChannel.h#L54-L85
+          -->
+        <size>100M</size>
+        <count>10</count>
+    </logger>
+    <!-- Данный блок позволяет удалить логи при запуске сервиса, если логи уже были, но их выключили -->
+    <asynchronous_metric_log remove="1"/>
+    <metric_log remove="1"/>
+    <query_thread_log remove="1" />
+    <query_log remove="1" />
+    <query_views_log remove="1" />
+    <part_log remove="1"/>
+    <session_log remove="1"/>
+    <text_log remove="1" />
+    <trace_log remove="1"/>
+    <crash_log remove="1"/>
+    <opentelemetry_span_log remove="1"/>
+    <zookeeper_log remove="1"/>
+    <query_log>
+    <!-- Выставляем период очистки для таблицы логов, если логирование включено..
+         Для корректного применения потребуется пересоздать таблицу:
+         RENAME TABLE system.query_log TO system.query_log_1;
+         systemctl restart clickhouse-server
+         DROP TABLE system.query_log_1;
+    -->
+        <ttl>event_date + INTERVAL 5 HOUR DELETE</ttl>
+    </query_log>
+</clickhouse>
